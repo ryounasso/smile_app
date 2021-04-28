@@ -1,24 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import logo from "./logo.svg";
+import "./App.css";
+import { Top } from "./Top";
+import { Main } from "./Main";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Router>
+        {/* <Header /> */}
+        <div className="container mx-auto">
+          <Switch>
+            <Route exact path="/" component={Top} />
+            <Route exact path="/main" component={Main} />
+            <Route render={() => <h4>not found...</h4>} />
+          </Switch>
+        </div>
+      </Router>
     </div>
   );
 }
