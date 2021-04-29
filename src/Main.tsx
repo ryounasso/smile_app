@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, MutableRefObject, useRef, useState } from "react";
 // import ml5 from "ml5";
 const ml5 = require("ml5");
 
@@ -23,7 +23,9 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
     },
   };
 
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(
+    null
+  ) as MutableRefObject<HTMLVideoElement>;
   //カメラとマイクのon/offボタンのstateを管理
   const [mutedState, setMutedState] = useState(false);
   const micSetter = (isChecked: boolean) => setMutedState(isChecked);
@@ -31,20 +33,23 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
   const cameraSetter = (isChecked: boolean) => setCameraState(isChecked);
   const [gaugeData, setGaugeData] = useState([0.5, 0.5]);
   const [shouldClassify, setShouldClassify] = useState(false);
+  const [facialState, setFacialState] = useState("表情を判断します");
+
+  const URL: String =
+    "https://teachablemachine.withgoogle.com/models/i0Jjpiv7w/";
+  const modelURL: String = URL + "model.json";
+  const metadataURL: String = URL + "metadata.json";
 
   //画面がロードされたタイミングでwebカメラに接続
   useEffect(() => {
-    classifier = ml5.imageClassifier(
-      "../../tm-my-image-model/model.json",
-      () => {
-        navigator.mediaDevices
-          .getUserMedia({ video: true, audio: false })
-          .then((stream) => {
-            videoRef.current.srcObject = stream;
-            videoRef.current.play();
-          });
-      }
-    );
+    classifier = ml5.imageClassifier(URL + "model.json", () => {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        });
+    });
   }, []);
 
   //カメラのon/offボタンの実装
@@ -66,16 +71,22 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
 
   setInterval(() => {
     if (classifier && shouldClassify) {
-      classifier.classify(videoRef.current, (error, results) => {
+      classifier.classify(videoRef.current, (error: any, results: any) => {
         if (error) {
           console.error(error);
           return;
         }
-        results.sort((a, b) => b.label.localeCompare(a.label));
-        setGaugeData(results.map((entry) => entry.confidence));
+        results.sort((a: any, b: any) => b.label.localeCompare(a.label));
+        if (results[0].confidence > results[1].confidence) {
+          console.log("真顔");
+          setFacialState("真顔");
+        } else {
+          console.log("笑顔");
+          setFacialState("わろてるやん");
+        }
       });
     }
-  }, 500);
+  }, 2000);
 
   return (
     <>
@@ -96,11 +107,7 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
       <button onClick={() => setShouldClassify(!shouldClassify)}>
         {shouldClassify ? "Stop classifying" : "Start classifying"}
       </button>
-      {/* <Link href="/">
-        <a>Back</a>
-      </Link> */}
-      {/* <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script> */}
+      <p>{facialState}</p>
     </>
   );
 };
