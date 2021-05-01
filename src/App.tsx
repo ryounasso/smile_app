@@ -1,16 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import logo from "./logo.svg";
-import "./App.css";
 import { Top } from "./Top";
 import { Main } from "./Main";
+import "./tailwind.css";
 
 function App() {
   return (
     <div>
       <Router>
         {/* <Header /> */}
-        <div className="container mx-auto">
+        <div className="">
           <Switch>
             <Route exact path="/" component={Top} />
             <Route exact path="/main" component={Main} />

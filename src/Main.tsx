@@ -1,5 +1,7 @@
 import React, { useEffect, MutableRefObject, useRef, useState } from "react";
-// import ml5 from "ml5";
+import { Link } from "react-router-dom";
+import "./tailwind.css";
+import useInterval from "./components/useInterval";
 const ml5 = require("ml5");
 
 let classifier: any;
@@ -31,14 +33,11 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
   const micSetter = (isChecked: boolean) => setMutedState(isChecked);
   const [cameraState, setCameraState] = useState(false);
   const cameraSetter = (isChecked: boolean) => setCameraState(isChecked);
-  const [gaugeData, setGaugeData] = useState([0.5, 0.5]);
   const [shouldClassify, setShouldClassify] = useState(false);
-  const [facialState, setFacialState] = useState("表情を判断します");
+  const [facialState, setFacialState] = useState("わろたらアカンで");
 
   const URL: String =
     "https://teachablemachine.withgoogle.com/models/i0Jjpiv7w/";
-  const modelURL: String = URL + "model.json";
-  const metadataURL: String = URL + "metadata.json";
 
   //画面がロードされたタイミングでwebカメラに接続
   useEffect(() => {
@@ -69,7 +68,8 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
     console.log(audio);
   }, [mutedState]);
 
-  setInterval(() => {
+  useInterval(() => {
+    console.log(shouldClassify);
     if (classifier && shouldClassify) {
       classifier.classify(videoRef.current, (error: any, results: any) => {
         if (error) {
@@ -78,36 +78,54 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
         }
         results.sort((a: any, b: any) => b.label.localeCompare(a.label));
         if (results[0].confidence > results[1].confidence) {
-          console.log("真顔");
-          setFacialState("真顔");
+          setFacialState("わろてないなぁ");
         } else {
-          console.log("笑顔");
           setFacialState("わろてるやん");
         }
       });
+    } else {
+      setFacialState("わろたらあかんで");
     }
-  }, 2000);
+  }, 1000);
 
   return (
     <>
-      <h1>ここにメインページを書く</h1>
-      <video
-        ref={videoRef}
-        id="local-video"
-        autoPlay
-        playsInline
-        muted
-        // width={video.width}
-        width="400px"
-        height="400px"
-        style={{ transform: "scale(-1, 1)" }}
-        // height={video.height}
-      />
-      <br />
-      <button onClick={() => setShouldClassify(!shouldClassify)}>
-        {shouldClassify ? "Stop classifying" : "Start classifying"}
-      </button>
-      <p>{facialState}</p>
+      <div className="container mx-auto">
+        <div className="text-center">
+          <h1 className="bg-blue-300 py-6 text-4xl text-white">
+            笑ってはいけない○○時
+          </h1>
+          <video
+            ref={videoRef}
+            id="local-video"
+            autoPlay
+            playsInline
+            muted
+            // width={video.width}
+            width="600px"
+            height="400px"
+            style={{ transform: "scale(-1, 1)" }}
+            className="block mx-auto my-4"
+            // height={video.height}
+          />
+        </div>
+        <br />
+        <div className="text-center">
+          <button
+            className="p-4 bg-blue-400 rounded text-white"
+            onClick={() => setShouldClassify(!shouldClassify)}
+          >
+            {shouldClassify ? "停止" : "始める"}
+          </button>
+          <p className="my-4 text-4xl">{facialState}</p>
+        </div>
+        <Link
+          className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded inline-block"
+          to="/"
+        >
+          Topに戻る
+        </Link>
+      </div>
     </>
   );
 };
