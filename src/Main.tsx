@@ -102,11 +102,11 @@ export const Main: React.FC<MediaProps> = ({ audio, video }) => {
             playsInline
             muted
             // width={video.width}
+            // height={video.height}
             width="600px"
             height="400px"
             style={{ transform: "scale(-1, 1)" }}
             className="block mx-auto my-4"
-            // height={video.height}
           />
         </div>
         <br />
